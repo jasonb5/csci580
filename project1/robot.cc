@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     vector<int> oVec;
     vector<vector<int> > mVec;
     
-    if (argc < 3 || argv[1] == NULL) {
+    if (argc < 4 || argv[1] == NULL) {
         print_usage();
 
         return 1;
@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 }
 
 void print_usage(void) {
-    cout << "./robot input.txt obs1 obs2 ..." << endl;
+    cout << "./robot input.txt serror obs1 obs2 ..." << endl;
 }
 
 void parse_map(char *file, vector<vector<int> > *mVec) {
@@ -69,7 +69,7 @@ void parse_map(char *file, vector<vector<int> > *mVec) {
 }
 
 void parse_observations(int argc, char **argv, vector<int> *oVec) {
-    for (int i = 2; i < argc; ++i) {
+    for (int i = 3; i < argc; ++i) {
         int o = 0;
         string obs(argv[i]);
 
