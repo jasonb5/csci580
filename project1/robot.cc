@@ -25,7 +25,8 @@ class Robot {
     int InitVec(vector<vector<double> > *, int, int, double);
     int InitTransVec(vector<vector<int> > &, vector<vector<double> > *, \
         int, int);
-   
+    void TransposeVec(vector<vector<double> > *);
+
     void PrintVec(vector<vector<double> >);
 };
 
@@ -52,7 +53,9 @@ int Robot::Localize(int serror, vector<vector<int> > &mVec, vector<int> &oVec) {
   InitVec(&t, total_nodes, total_nodes, 0.0);
 
   InitTransVec(mVec, &t, valid_pos, valid_pos);
-  
+ 
+  TransposeVec(&t);
+
   PrintVec(t);
 
   return 0;
@@ -136,6 +139,16 @@ int Robot::InitTransVec(vector<vector<int> > &mVec, vector<vector<double> > \
   }
 
   return 0;
+}
+
+void Robot::TransposeVec(vector<vector<double> > *tVec) {
+  vector<vector<double> > copy(*tVec);
+
+  for (int i = 0; i < copy.size(); ++i) {
+    for (int j = 0; j < copy[i].size(); ++j) {
+      (*tVec)[j][i] = copy[i][j];
+    }
+  }
 }
 
 void Robot::PrintVec(vector<vector<double> > vec) {
