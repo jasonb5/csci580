@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <math.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -36,6 +37,7 @@ class Robot {
 
     void TransposeMatrix(Matrix<double> *);
     Matrix<double> &MultiplyMatrices(Matrix<double> &, Matrix<double> &);
+    void NormalizeMatrix(Matrix<double> *);
 
     int CalcObsStateDiff(int, int);
 
@@ -99,31 +101,33 @@ int Robot::Localize() {
 
   for (int x = 0; x < m_obs.size()-1; ++x) {
     InitObsMatrix(m_obs[x], m_map, s, &o);
+  
+    Matrix<double> temp = MultiplyMatrices(t, o);
+
+    j = MultiplyMatrices(temp, j);
   }
 
-  Matrix(double, m1, 3, 3);
+  InitObsMatrix(m_obs[m_obs.size()-1], m_map, s, &o);
 
-  m1[0][0] = 1;
-  m1[0][1] = 0;
-  m1[0][2] = 1;
+  j = MultiplyMatrices(o, j);
 
-  m1[1][0] = 1;
-  m1[1][1] = 1;
-  m1[1][2] = 1;
+  NormalizeMatrix(&j);
 
-  m1[2][0] = 0;
-  m1[2][1] = 0;
-  m1[2][2] = 0;
+  double max(0);
+  int max_index(0);
 
-  Matrix(double, m2, 1, 3);
+  for (int x = 0; x < j.size(); ++x) {
+    if (j[x][0] > max) {
+      max = j[x][0];
 
-  m2[0][0] = 1;
-  m2[1][0] = 0;
-  m2[2][0] = 1;
+      max_index = x;
+    }
+  }
 
-  Matrix<double> m3 = MultiplyMatrices(m1, m2);
+  int row = max_index / m_map[0].size();
+  int col = max_index - (row * m_map[0].size());
 
-  PrintMatrix(m3);
+  cout << "(" << row << "," << col << ") " << max << endl;
 
   return 0;
 }
@@ -182,39 +186,38 @@ void Robot::TransposeMatrix(Matrix<double> *m) {
   }
 }
 
-/*
- * 0 1 0    0 1    1 0 
- * 1 0 1    1 0    1 2
- * 1 1 1    1 1    2 2
- * 0 1 1           2 1
- * 
- *  4x3     3x2
- */
 Matrix<double> &Robot::MultiplyMatrices(Matrix<double> &m, Matrix<double> &n) {
   Matrix<double> *r = PMatrix(double, r, n[0].size(), m.size());
-
-  PrintMatrix(m);
-  cout << endl;
-  PrintMatrix(n);
-  cout << endl;
 
   for (int x = 0; x < m.size(); ++x) {
     for (int y = 0; y < n[0].size(); ++y) {
       double total(0);
       
       for (int z = 0; z < n.size(); ++z) {
-        cout << m[x][z] << " * " << n[z][y] << endl;
-    
         total += m[x][z] * n[z][y];
       }
 
-      cout << endl;
-   
       (*r)[x][y] = total; 
     }
   } 
 
   return *r;
+}
+
+void Robot::NormalizeMatrix(Matrix<double> *m) {
+  double total(0);
+
+  for (int x = 0; x < m->size(); ++x) {
+    for (int y = 0; y < (*m)[x].size(); ++y) {
+      total += (*m)[x][y];
+    }
+  }
+
+  for (int x = 0; x < m->size(); ++x) {
+    for (int y = 0; y < (*m)[x].size(); ++y) {
+      (*m)[x][y] /= total;
+    }
+  }
 }
 
 int Robot::CalcObsStateDiff(int state, int obs) {
