@@ -1,4 +1,4 @@
-CPPFLAGS := -g
+CPPFLAGS := -std=c++11 -g
 
 robot:
 
