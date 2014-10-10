@@ -13,8 +13,6 @@ using namespace std;
 #define WEST    0x2
 #define EAST    0x1
 
-#define DEBUG
-
 template<typename T>
 using Matrix = vector<vector<T> >;
 
@@ -52,10 +50,8 @@ class Robot {
 };
 
 int Robot::Init(int argc, char **argv) {
-#ifdef DEBUG
   cout << fixed;
   cout << setprecision(6);
-#endif
 
   if (argv[1] == NULL) {
     PrintUsage(); 
@@ -118,20 +114,26 @@ int Robot::Localize() {
   NormalizeMatrix(&j);
 
   double max(0);
-  int max_index(0);
+  vector<int> results;
 
   for (int x = 0; x < j.size(); ++x) {
     if (j[x][0] > max) {
       max = j[x][0];
 
-      max_index = x;
+      results.clear();
+
+      results.push_back(x);
+    } else if (j[x][0] == max) {
+      results.push_back(x);
     }
   }
 
-  int row = max_index / m_map[0].size();
-  int col = max_index - (row * m_map[0].size());
+  for (int x = 0; x < results.size(); ++x) {
+    int row = results[x] / m_map[0].size();
+    int col = results[x] - (row * m_map[0].size());
 
-  cout << "(" << row << "," << col << ") " << max << endl;
+    cout << "(" << row << "," << col << ") " << max << endl;
+  }
 
   return 0;
 }
