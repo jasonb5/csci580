@@ -54,7 +54,7 @@ class Robot {
 int Robot::Init(int argc, char **argv) {
 #ifdef DEBUG
   cout << fixed;
-  cout << setprecision(10);
+  cout << setprecision(6);
 #endif
 
   if (argv[1] == NULL) {
@@ -86,18 +86,22 @@ int Robot::Localize() {
   
   for (int x = 0; x < m_map.size(); ++x) {
     for (int y = 0; y < m_map[x].size(); ++y) {
-      if (m_map[x][y] == 0xf) {
-        j[x*m_map.size()+y][0] = 0;
+      int index = x*m_map[x].size()+y;
+
+			if (m_map[x][y] == 0xf) {
+        j[index][0] = 0;
       } else {
-        j[x*m_map.size()+y][0] = (double)1/(double)valid_states;
+        j[index][0] = (double)1/(double)valid_states;
       }
     }
   }
 
   InitSensoryMatrix(m_error, &s);
   InitTransitionMatrix(m_map, &t);
-
+  
   TransposeMatrix(&t);
+
+	j = MultiplyMatrices(t, j);
 
   for (int x = 0; x < m_obs.size()-1; ++x) {
     InitObsMatrix(m_obs[x], m_map, s, &o);
@@ -108,8 +112,8 @@ int Robot::Localize() {
   }
 
   InitObsMatrix(m_obs[m_obs.size()-1], m_map, s, &o);
-
-  j = MultiplyMatrices(o, j);
+  
+	j = MultiplyMatrices(o, j);
 
   NormalizeMatrix(&j);
 
@@ -169,9 +173,9 @@ void Robot::InitObsMatrix(\
   for (int x = 0; x < m.size(); ++x) {
     for (int y = 0; y < m[x].size(); ++y) {
       int index = x*m[x].size()+y;
-      int diff = CalcObsStateDiff(m[x][y], obs);
+			int diff = CalcObsStateDiff(m[x][y], obs);
      
-      (*o)[index][index] = s[diff][0]; 
+     	(*o)[index][index] = s[diff][0]; 
     }
   }
 }
@@ -196,8 +200,8 @@ Matrix<double> &Robot::MultiplyMatrices(Matrix<double> &m, Matrix<double> &n) {
       for (int z = 0; z < n.size(); ++z) {
         total += m[x][z] * n[z][y];
       }
-
-      (*r)[x][y] = total; 
+      
+			(*r)[x][y] = total; 
     }
   } 
 
@@ -306,7 +310,7 @@ int Robot::ParseObs(const char *obs) {
       value |= WEST;
     } else if (s[i] == 'E') {
       value |= EAST;
-    }
+    } 
   }
 
   return value;
