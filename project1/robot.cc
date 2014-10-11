@@ -13,6 +13,8 @@ using namespace std;
 #define WEST    0x2
 #define EAST    0x1
 
+// Type alias defined in c++11
+// http://en.cppreference.com/w/cpp/language/type_alias
 template<typename T>
 using Matrix = vector<vector<T> >;
 
