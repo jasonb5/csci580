@@ -10,7 +10,7 @@ em: $(OBJS)
 
 $(BUILD_DIR)/%.o: %.cc
 	if not exist $(subst /,\,$(dir $@)) mkdir $(subst /,\,$(dir $@))
-	$(CXX) -c -o $@ $<
+	$(CXX) -std=c++11 -c -o $@ $<
 
 run: em
 	$(BUILD_DIR)\em observations.txt transition.txt sensory.txt original.txt 2

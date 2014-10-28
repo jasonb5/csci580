@@ -1,12 +1,19 @@
+#define DEBUG
+
 #include "em.h"
 
-#include <stdio.h>
-#include <stdlib.h>
 
 int main(int argc, char **argv) {
-  if (argc != 6) {
-    printf("%s <observation file> <transition file> <sensory file> <original> k\n", \
-        argv[0]);
+  EM em;
+
+  if (em.ParseObservations(argv[1])) {
+    error("Failed to parse observations");
+
+    exit(1);
+  }
+
+  if (em.ParseTransition(argv[2])) {
+    error("Failed to parse transition");
 
     exit(1);
   }
