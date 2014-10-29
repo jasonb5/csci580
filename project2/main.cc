@@ -18,5 +18,23 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
+  if (em.ParseSensory(argv[3])) {
+    error("Failed to parse sensory");
+
+    exit(1);
+  }
+
+  if (em.ParseOriginal(argv[4])) {
+    error("Failed to parse original");
+
+    exit(1);
+  }
+
+  if (em.CalculateEM(atoi(argv[5]))) {
+    error("Failed to calculate em");
+
+    exit(1);
+  }
+
   return 0;
 }

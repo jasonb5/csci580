@@ -25,12 +25,17 @@ class EM {
 
   int ParseObservations(const char *file);
   int ParseTransition(const char *file);
+  int ParseSensory(const char *file);  
+  int ParseOriginal(const char *file);
+  int CalculateEM(int k);
 
  private:
   void PrintMatrix(matrix<double> m);
 
   vector<int> observations_;
   matrix<double> transition_;
+  matrix<double> sensory_;
+  vector<int> original_;
 };
 
 #endif // PROJECT2_EM_H_
