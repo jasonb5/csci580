@@ -1,0 +1,35 @@
+./em observations_10.txt transition_10.txt sensory_10.txt original_10.txt 1
+
+Transition probabilities learned:
+    0.166667     0.500000     0.285714
+    0.666667     0.166667     0.142857
+    0.166667     0.333333     0.571429
+
+Sensory probabilities learned:
+    0.600000
+    0.800000
+    0.166667
+
+Accuracy:
+70.00%
+
+
+
+
+elenah@bass $ cat transition_10.txt
+0.45 0.52 0.25
+0.35 0.3 0.13
+0.2 0.18 0.62
+
+elenah@bass $ cat sensory_10.txt
+0.5
+0.85
+0.1
+
+elenah@bass $ cat observations_10.txt
+HHHTHTTTTH
+
+
+elenah@bass $ cat original_10.txt
+BBBLLMMMMB
+

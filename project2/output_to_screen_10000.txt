@@ -1,0 +1,29 @@
+elenah@bass $ time ./em observations_10000.txt transition.txt sensory.txt original_10000.txt 8
+
+Transition probabilities learned:
+ 0.000327225     0.999346  0.000256608
+    0.489202  0.000327225     0.400308
+    0.510471  0.000327225     0.599435
+
+Sensory probabilities learned:
+    0.514894
+    0.999673
+ 0.000256674
+
+Accuracy:
+40.56%
+
+
+
+
+
+elenah@bass $ cat transition.txt 
+0.4 0.5 0.2
+0.3 0.3 0.2
+0.3 0.2 0.6
+
+elenah@bass $ cat sensory.txt 
+0.5
+0.8
+0.2
+
