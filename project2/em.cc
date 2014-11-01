@@ -30,6 +30,12 @@
 
 using namespace std;
 
+// Alpha representation of states in hidden Markov model
+const char *kModelStates[] = { "B", "L", "M" };
+
+// Alpha representation of observations in hidden Markov model
+const char *kModelObservations[] = { "H", "T" };
+
 // Default constructor
 // Initializes all matrices needed for setup
 EM::EM()
@@ -211,7 +217,7 @@ int EM::CalculateEM(int iterations) {
   cout << endl << "Sensory probabilities learned:" << endl;
   PrintMatrix(sensory_);
   cout << endl << "Accuracy:" << endl;
-  cout << " " << CalculateClassifierAccuracy(state_seq) * 100 << endl;
+  cout << setprecision(2) << " " << CalculateClassifierAccuracy(state_seq) * 100 << "%" << endl;
 
   return 0;
 }
@@ -227,14 +233,14 @@ void EM::UndoLog2Matrix(matrix<double> *matrix) {
 
 // Calculates accuracy of em classifier
 double EM::CalculateClassifierAccuracy(matrix<int> state_seq) {
-  int match;
+  int match(0);
   
   for (int x = 0; x < original_[0].size(); ++x) {
     if (state_seq[0][x+1] == original_[0][x]) {
       ++match;
     }
   }
-  
+
   return (double)match/(double)original_[0].size();
 }
 
@@ -242,7 +248,7 @@ double EM::CalculateClassifierAccuracy(matrix<int> state_seq) {
 void EM::PopulateLikelyStateSequence(matrix<double> vit, matrix<int> back_trace, matrix<int> *state_seq) {
   int index;
   double min = numeric_limits<double>::max();
-
+  
   for (int x = 0; x < vit.size(); ++x) {
     if (vit[x][vit[0].size()-1] < min) {
       index = x;

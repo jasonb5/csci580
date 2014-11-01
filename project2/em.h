@@ -48,12 +48,6 @@ using matrix = vector<vector<T> >;
 // Helper for initializing matrix
 #define matrix(N, T, R, C) matrix<T> N(R, vector<T>(C))
 
-// Alpha representation of states in hidden Markov model
-const char *kModelStates[] = { "B", "L", "M" };
-
-// Alpha representation of observations in hidden Markov model
-const char *kModelObservations[] = { "H", "T" };
-
 // Class implements the expectation-maximization algorithm
 // https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm
 // The algorithm iterates over the results of applying the
