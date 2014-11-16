@@ -4,7 +4,7 @@ elenah@bass $ time ./ann train_input2.txt train_output2.txt test_input2.txt test
 0.0464925601605351
 -0.0064631570339245
 
-36.00%
+35.00%
 
 real    0m4.240s
 user    0m4.214s
