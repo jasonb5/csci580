@@ -12,7 +12,9 @@ class ANN {
  public:
 	void AddLayer(int nodes);
 	void AddWeight(int layer, int node, double weight);
-	void TrainNetwork(vector<double> input, vector<double> expected);
+  int Layers();
+  int NodesInLayer(int layer);
+	void TrainNetwork(vector<double> input, vector<double> expected, int iterations);
 	void BackPropagation(vector<double> output, vector<double> expected);
 	void TestData(vector<double> intput, vector<double> &output);
 	void PrintNetwork();

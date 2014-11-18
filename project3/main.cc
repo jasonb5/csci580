@@ -8,66 +8,99 @@
 
 using namespace std;
 
-int load_network(ANN &ann, char *structure, char *weights);
-int train_network(ANN &ann, char *input_file, char *output_file);
+int LoadNetwork(ANN &ann, char *structure, char *weights);
+int TrainNetwork(ANN &ann, char *input_file, char *output_file, int iterations);
+int TestNetwork(ANN &ann, char *input_file, char *output_file);
+int ReadIntegerList(char *file, vector<int> &list);
+int ReadDoubleTable(char *file, vector<vector<double> > &table);
 
 int main(int argc, char **argv) {
 	ANN ann;
 
 	for (int i = 0; i < argc; ++i) { debug("%s", argv[i]); }
 
-	if (load_network(ann, argv[5], argv[6])) {
+	if (LoadNetwork(ann, argv[5], argv[6])) {
 		return 1;
 	}
 
-	if (train_network(ann, argv[1], argv[2])) {
-		return 1;
+  if (TrainNetwork(ann, argv[1], argv[2], atoi(argv[7]))) {
+  	return 1;
 	}	
-
-	ann.PrintNetwork();
-
-	return 0;
-}
-
-int load_network(ANN &ann, char *structure, char *weights) {
-	int i, x, y;
-	int nodes;
-	string line, weight;
-	ifstream ifs_s(structure);
-	ifstream ifs_w(weights);
-
-	i = 0;
-
-	while (!ifs_s.eof()) {
-		getline(ifs_s, line);
-		nodes = atoi(line.c_str());
-
-		ann.AddLayer(nodes);
-
-		if (i++ > 0) {
-			for (x = 0; x < nodes; ++x) {
-				ann.AddWeight(i-1, x, 0.01);
-			}
-
-			for (x = 0; x < nodes; ++x) {
-				getline(ifs_w, line);
-				stringstream weight_line(line);				
-				y = 0;
-
-				while (getline(weight_line, weight, ' ')) {
-					ann.AddWeight(i-1, y++, atof(weight.c_str()));
-				}	
-			}	
-		}		
-	}
-
-	ifs_s.close();
-	ifs_w.close();
+//
+//  if (TestNetwork(ann, argv[3], argv[4])) {
+//    return 1;
+//  }
 
 	return 0;
 }
 
-int train_network(ANN &ann, char *input_file, char *output_file) {
+int LoadNetwork(ANN &ann, char *structure, char *weights) {
+  vector<int> s;
+  vector<vector<double> > w;
+
+  if (ReadIntegerList(structure, s)) {
+    return 1;
+  }
+
+  if (ReadDoubleTable(weights, w)) {
+    return 1;
+  }
+
+  int x, y, z, i;
+
+  for (x = 0, i = 0; x < s.size(); ++x) {
+    ann.AddLayer(s[x]);
+
+    if (x > 0) {
+      for (y = 0; y < s[x-1]; ++y, ++i) {
+        for (z = 0; z < s[x]; ++z) {
+          ann.AddWeight(x, z, w[i][z]);
+        }
+      }
+    } 
+  }
+
+	return 0;
+}
+
+int TrainNetwork(ANN &ann, char *input_file, char *output_file, int iterations) {
+  vector<int> output_class;
+  vector<vector<double> > input, output;
+
+  if (ReadDoubleTable(input_file, input)) {
+    return 1;
+  }
+
+  if (ReadIntegerList(output_file, output_class)) {
+    return 1;
+  }
+
+  int x, y;
+
+  for (x = 0; x < output_class.size(); ++x) {
+    vector<double> row;
+
+    for (y = 0; y < ann.NodesInLayer(ann.Layers()-1); ++y) {
+      if (y == output_class[x]) {
+        row.push_back(0.1);
+      } else {
+        row.push_back(0.9);
+      }
+    }
+
+    output.push_back(row);
+  } 
+
+  ann.PrintNetwork();
+
+  ann.TrainNetwork(input[0], output[0], 1);
+
+  ann.PrintNetwork();  
+
+  return 0;
+}
+
+int TestNetwork(ANN &ann, char *input_file, char *output_file) {
 	int i;
 	string line_i, line_o, temp;
 	ifstream ifs_i(input_file);
@@ -83,21 +116,46 @@ int train_network(ANN &ann, char *input_file, char *output_file) {
 			input.push_back(atof(temp.c_str()));
 		}
 
-		for (i = 0; i < input.size(); ++i) {
-			if (i == atoi(line_o.c_str())) {
-				output.push_back(0.1);
-			} else {
-				output.push_back(0.9);
-			}
-		}
-
-		ann.TrainNetwork(input, output);
-
-		break;
-	}
+  }
 
 	ifs_o.close();
 	ifs_i.close();
 
-	return 0;
+  return 0;
+}
+
+int ReadIntegerList(char *file, vector<int> &list) {
+  string line;
+  ifstream ifs(file);
+
+  while (!ifs.eof()) {
+    getline(ifs, line);
+    
+    list.push_back(atoi(line.c_str()));
+  }
+  
+  ifs.close();
+
+  return 0;
+}
+
+int ReadDoubleTable(char *file, vector<vector<double> > &table) {
+  string line, value;
+  ifstream ifs(file);
+
+  while (!ifs.eof()) {
+    vector<double> row;
+    getline(ifs, line);
+    stringstream line_stream(line);
+
+    while (getline(line_stream, value, ' ')) {
+      row.push_back(atof(value.c_str()));
+    }
+
+    table.push_back(row);
+  }
+
+  ifs.close();
+
+  return 0;
 }

@@ -19,12 +19,25 @@ void ANN::AddWeight(int layer, int node, double weight) {
 	layers_[layer][node]->weights.push_back(weight);
 }
 
-void ANN::TrainNetwork(vector<double> input, vector<double> expected) {
+int ANN::Layers() {
+  return layers_.size();
+}
+
+int ANN::NodesInLayer(int layer) {
+  return layers_[layer].size();
+}
+
+void ANN::TrainNetwork(vector<double> input, vector<double> expected, int iterations) {
+  int i;
 	vector<double> output;
 
-	TestData(input, output);
+  for (i = 0; i < iterations; ++i) {
+    output.clear(); 
 
-	BackPropagation(output, expected);
+    TestData(input, output);
+
+    BackPropagation(output, expected);
+  }
 }
 
 void ANN::BackPropagation(vector<double> output, vector<double> expected) {	
@@ -49,6 +62,14 @@ void ANN::BackPropagation(vector<double> output, vector<double> expected) {
 			layers_[x][y]->delta = value * (1-value) * error_weights;
 		}
 	}
+
+  for (x = 1; x < layers_.size(); ++x) {
+    for (y = 0; y < layers_[x].size(); ++y) {
+      for (z = 0; z < layers_[x][y]->weights.size(); ++z) {
+        layers_[x][y]->weights[z] += 0.01 * ((z == 0) ? 1.0 : layers_[x][y]->value) * layers_[x][y]->delta;
+      }
+    }  
+  }
 }
 
 void ANN::TestData(vector<double> input, vector<double> &output) {
