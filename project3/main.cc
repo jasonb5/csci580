@@ -99,27 +99,11 @@ int TrainNetwork(ANN &ann, char *input_file, char *output_file, int iterations) 
     output.push_back(row);
   } 
 
-	for (x = 0; x < input.size(); ++x) {
-		debug("\nTraing with input ");
-
-		for (y = 0; y < input[x].size(); ++y) {
-			debug("%f ", input[x][y]);			
-		}
-
-		debug("\nExpected output ");
-
-		for (y = 0; y < input[x].size(); ++y) {
-			debug("%f ", output[x][y]);	
-		}
-
-		debug("\n");
-	}
-
-	for (x = 0; x < input.size(); ++x) {
-		for (y = 0; y < iterations; ++y) {
-			ann.TrainNetwork(input[x], output[x]);	
-		}
-	}
+  for (x = 0; x < iterations; ++x) {
+    for (y = 0; y < input.size(); ++y) {
+      ann.TrainNetwork(input[y], output[y]);
+    }
+  }
 
   return 0;
 }
@@ -177,7 +161,26 @@ int TestNetwork(ANN &ann, char *input_file, char *output_file) {
 		output.push_back(output_test);	
 	}
 
-	ann.ClassifyData(output, class_map);
+  for (x = 0; x < ann.NodesInLayer(ann.Layers()-1); ++x) {
+    Neuron n = ann.NeuronAt(ann.Layers()-1, x);
+
+    msg("%.16f\n", n.weights[1]);
+  }
+  
+  vector<int> classified;
+
+	ann.ClassifyData(output, class_map, classified);
+
+  int matches = 0;
+  map<int, vector<double> >::iterator it;
+
+  for (x = 0, it = class_map.begin(); it != class_map.end(); ++it, ++x) {
+    if (classified[x] == it->first) {
+      ++matches;
+    }    
+  }
+
+  msg("\n%.2f\n", (double)matches*100/(double)classified.size());
 
   return 0;
 }
