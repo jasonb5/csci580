@@ -17,8 +17,6 @@ int ReadDoubleTable(char *file, vector<vector<double> > &table);
 int main(int argc, char **argv) {
 	ANN ann;
 
-	for (int i = 0; i < argc; ++i) { debug("%s", argv[i]); }
-
 	if (LoadNetwork(ann, argv[5], argv[6])) {
 		return 1;
 	}
@@ -26,10 +24,10 @@ int main(int argc, char **argv) {
   if (TrainNetwork(ann, argv[1], argv[2], atoi(argv[7]))) {
   	return 1;
 	}	
-//
-//  if (TestNetwork(ann, argv[3], argv[4])) {
-//    return 1;
-//  }
+
+  if (TestNetwork(ann, argv[3], argv[4])) {
+		return 1;
+  }
 
 	return 0;
 }
@@ -49,11 +47,21 @@ int LoadNetwork(ANN &ann, char *structure, char *weights) {
   int x, y, z, i;
 
   for (x = 0, i = 0; x < s.size(); ++x) {
+		debug("Adding layer with %d nodes\n", s[x]);
+
     ann.AddLayer(s[x]);
 
     if (x > 0) {
+			for (y = 0; y < s[x]; ++y) {
+				debug("Adding dummy weight %f to node %d in layer %d\n", 0.01, y, x);
+
+				ann.AddWeight(x, y, 0.01);
+			}
+
       for (y = 0; y < s[x-1]; ++y, ++i) {
         for (z = 0; z < s[x]; ++z) {
+					debug("Adding weight %f to node %d in layer %d\n", w[i][z], z, x);
+
           ann.AddWeight(x, z, w[i][z]);
         }
       }
@@ -91,35 +99,85 @@ int TrainNetwork(ANN &ann, char *input_file, char *output_file, int iterations) 
     output.push_back(row);
   } 
 
-  ann.PrintNetwork();
+	for (x = 0; x < input.size(); ++x) {
+		debug("\nTraing with input ");
 
-  ann.TrainNetwork(input[0], output[0], 1);
+		for (y = 0; y < input[x].size(); ++y) {
+			debug("%f ", input[x][y]);			
+		}
 
-  ann.PrintNetwork();  
+		debug("\nExpected output ");
+
+		for (y = 0; y < input[x].size(); ++y) {
+			debug("%f ", output[x][y]);	
+		}
+
+		debug("\n");
+	}
+
+	for (x = 0; x < input.size(); ++x) {
+		for (y = 0; y < iterations; ++y) {
+			ann.TrainNetwork(input[x], output[x]);	
+		}
+	}
 
   return 0;
 }
 
 int TestNetwork(ANN &ann, char *input_file, char *output_file) {
-	int i;
-	string line_i, line_o, temp;
-	ifstream ifs_i(input_file);
-	ifstream ifs_o(output_file);
-	vector<double> input, output;
+	vector<int> class_list;
+	vector<vector<double> > input, output;	
+	map<int, vector<double> > class_map;
 
-	while (!ifs_i.eof()) {
-		getline(ifs_i, line_i);
-		getline(ifs_o, line_o);
-		stringstream in_line(line_i);
+	if (ReadDoubleTable(input_file, input)) {
+		return 1;
+	}
 
-		while (getline(in_line, temp, ' ')) {
-			input.push_back(atof(temp.c_str()));
+	if (ReadIntegerList(output_file, class_list)) {
+		return 1;
+	}
+
+	int x, y;
+
+	for (x = 0; x < class_list.size(); ++x) {
+		vector<double> row;
+
+		for (y = 0; y < ann.NodesInLayer(ann.Layers()-1); ++y) {
+			if (y == class_list[x]) {
+				row.push_back(0.1);	
+			} else {
+				row.push_back(0.9);
+			}
 		}
 
-  }
+		class_map[class_list[x]] = row;	
+	}
 
-	ifs_o.close();
-	ifs_i.close();
+	for (x = 0; x < input.size(); ++x) {
+		vector<double> output_test;
+
+		debug("\nTesting data ");
+
+		for (y = 0; y < input[x].size(); ++y) {
+			debug("%f ", input[x][y]);
+		}
+
+		debug("\n");
+
+		ann.TestData(input[x], output_test);
+
+		debug("Network results ");
+
+		for (y = 0; y < output_test.size(); ++y) {
+			debug("%f ", output_test[y]);
+		}
+
+		debug("\n");
+
+		output.push_back(output_test);	
+	}
+
+	ann.ClassifyData(output, class_map);
 
   return 0;
 }
@@ -128,9 +186,19 @@ int ReadIntegerList(char *file, vector<int> &list) {
   string line;
   ifstream ifs(file);
 
+	if (ifs.fail() || ifs.bad()) {
+		error("Failed to open file %s", file);
+		
+		return 1;
+	}
+
   while (!ifs.eof()) {
     getline(ifs, line);
-    
+   
+		if (line.empty()) {
+			continue;
+		}
+ 
     list.push_back(atoi(line.c_str()));
   }
   
@@ -142,6 +210,12 @@ int ReadIntegerList(char *file, vector<int> &list) {
 int ReadDoubleTable(char *file, vector<vector<double> > &table) {
   string line, value;
   ifstream ifs(file);
+
+	if (ifs.fail() || ifs.bad()) {
+		error("Failed to open file %s", file);
+		
+		return 1;
+	}
 
   while (!ifs.eof()) {
     vector<double> row;

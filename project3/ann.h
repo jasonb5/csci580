@@ -3,10 +3,20 @@
 
 #include <stdio.h>
 #include <vector>
+#include <map>
 
 using std::vector;
+using std::map;
 
-#define debug(M, ...) fprintf(stdout, "%s:%d:" M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define error(M, ...) fprintf(stderr, "%s:%d: " M "\n", ##__VA_ARGS__)
+
+#ifndef DEBUG
+#define debug(M, ...) fprintf(stdout, M, ##__VA_ARGS__)
+#else 
+#define debug(M, ...)
+#endif
+
+#define msg(M, ...) fprintf(stdout, M, ##__VA_ARGS__)
 
 class ANN {
  public:
@@ -14,9 +24,10 @@ class ANN {
 	void AddWeight(int layer, int node, double weight);
   int Layers();
   int NodesInLayer(int layer);
-	void TrainNetwork(vector<double> input, vector<double> expected, int iterations);
+	void TrainNetwork(vector<double> input, vector<double> expected);
 	void BackPropagation(vector<double> output, vector<double> expected);
 	void TestData(vector<double> intput, vector<double> &output);
+	void ClassifyData(vector<vector<double> > data, map<int, vector<double> > class_map);
 	void PrintNetwork();
 
  private:

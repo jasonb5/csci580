@@ -1,6 +1,9 @@
 #include "ann.h"
 
 #include <math.h>
+#include <limits>
+
+using std::numeric_limits;
 
 void ANN::AddLayer(int nodes) {
 	Neuron *n;
@@ -27,17 +30,12 @@ int ANN::NodesInLayer(int layer) {
   return layers_[layer].size();
 }
 
-void ANN::TrainNetwork(vector<double> input, vector<double> expected, int iterations) {
-  int i;
+void ANN::TrainNetwork(vector<double> input, vector<double> expected) {
 	vector<double> output;
 
-  for (i = 0; i < iterations; ++i) {
-    output.clear(); 
+	TestData(input, output);
 
-    TestData(input, output);
-
-    BackPropagation(output, expected);
-  }
+	BackPropagation(output, expected);
 }
 
 void ANN::BackPropagation(vector<double> output, vector<double> expected) {	
@@ -99,13 +97,37 @@ void ANN::TestData(vector<double> input, vector<double> &output) {
 	}
 }
 
+void ANN::ClassifyData(vector<vector<double> > data, map<int, vector<double> > class_map) {
+	int x, y, z, classified;
+	double minimum = numeric_limits<double>::max();
+	map<int, vector<double> >::iterator it;
+
+	for (x = 0; x < data.size(); ++x) {
+		for (it = class_map.begin(); it != class_map.end(); ++it) {
+			double value = 0.0;
+
+			for (y = 0; y < it->second.size(); ++y) {
+				value += (double)pow(data[x][y] - it->second[y], 2);
+			}
+
+			value = sqrt(value);
+
+			if (value < minimum) {
+				minimum = value;
+			
+				classified = it->first;
+			}
+		}
+	}	
+}
+
 void ANN::PrintNetwork() {
 	for (int x = 0; x < layers_.size(); ++x) {
-		debug("Layer %d", x);
+		debug("Layer %d\n", x);
 		for (int y = 0; y < layers_[x].size(); ++y) {
-			debug("\tNode %d value %f", y, layers_[x][y]->value);
+			debug("\tNode %d value %f\n", y, layers_[x][y]->value);
 			for (int z = 0; z < layers_[x][y]->weights.size(); ++z) {
-				debug("\t\tWeight %f", layers_[x][y]->weights[z]);
+				debug("\t\tWeight %f\n", layers_[x][y]->weights[z]);
 			}
 		}
 	}
