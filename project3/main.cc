@@ -248,7 +248,7 @@ int TestNetwork(ANN &ann, char *input_file, char *output_file) {
 	}
 
 	// Print the accuracy of the classifier
-	msg("\n%.2f%\n", (double)matches*100/classified.size());
+	msg("\n%.2f%%\n", (double)matches*100/classified.size());
 
 	// Write classifications to output file
 	char buf[2];
