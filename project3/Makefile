@@ -3,11 +3,13 @@ SRCS := main.cc \
 
 OBJS := $(SRCS:%.cc=%.o)
 
+CPPFLAGS := -DDEBUG -g
+
 ann: $(OBJS)
 	$(CXX) -o $@ $^
 
 %.o: %.cc
-	$(CXX) -g $< -c -o $@
+	$(CXX) $(CPPFLAGS) $< -c -o $@
 
 run: ann test2
 
