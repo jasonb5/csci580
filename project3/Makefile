@@ -3,7 +3,7 @@ SRCS := main.cc \
 
 OBJS := $(SRCS:%.cc=%.o)
 
-CPPFLAGS := -DDEBUG -g
+CPPFLAGS := -g
 
 ann: $(OBJS)
 	$(CXX) -o $@ $^
